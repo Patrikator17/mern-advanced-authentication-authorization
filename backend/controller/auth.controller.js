@@ -1,5 +1,8 @@
 import User from "../models/user.model.js";
 import bcryptjs from 'bcryptjs';
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET_KEY = 'qwerty';
 
 export const signup = async (req, res, next) => {
     const { username, email, password } = req.body; //get from user
@@ -35,3 +38,27 @@ export const signup = async (req, res, next) => {
         }
     }
 };
+
+
+export const login = async(req, res, next) => {
+    const {email, password} = req.body;
+    try{
+        const validUser = await User.findOne({email : email})
+        if(!validUser){
+            return res.status(401).json({message : 'User not found'})
+        }
+        const validPassword = bcryptjs.compareSync(password, validUser.password)
+        if(!validPassword){
+            return res.status(401).json({message : 'Invalid credentials'})
+        }
+        const token = jwt.sign({id : validUser._id}, JWT_SECRET_KEY)
+        const {password : hashedPassword, ...rest} = validUser._doc
+        const expiryDate = new Date(Date.now() + 3600000); // 1 hour
+
+        res.cookie('access_token', token, {httpOnly : true}, {expires : expiryDate})
+        .status(200).json({rest})
+
+    }catch(error){
+        next(error)
+    }
+}
