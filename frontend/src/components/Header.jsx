@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 const Header = () => {
   return (
     <div className='bg-slate-400' >
-        <div className='flex justify-between items-center max-w-6xl p-3'>
+        <div className='flex justify-between items-center max-w-8xl p-3'>
             <Link to='/'>
                 <h1 className='font-bold'>Authentication</h1>
             </Link>
