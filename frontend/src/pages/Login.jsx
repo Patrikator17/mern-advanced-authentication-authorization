@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../redux/user/userSlice";
 
 const Login = () => {
   const [formdata, setFormdata] = useState({});
   const [loading, setLoading] = useState(false);
   const [loginStatus, setLoginStatus] = useState(null);
-  const navigate = useNavigate()
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const error = useSelector((state) => state.user.error);
 
   const handleChange = (e) => {
     setFormdata({ ...formdata, [e.target.id]: e.target.value });
@@ -16,10 +24,12 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
+      dispatch(signInStart());
+
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formdata),
       });
@@ -27,20 +37,17 @@ const Login = () => {
       const data = await res.json();
 
       if (res.ok) {
-        // Successful login
-        setLoginStatus('success');
-        navigate('/')
+        dispatch(signInSuccess(data)); // Pass the user data to signInSuccess
+        setLoginStatus("success");
+        navigate("/");
       } else {
-        // Unsuccessful login
-        if (data.message === 'User not found' || data.message === 'Invalid credentials') {
-          setLoginStatus('invalidCredentials');
-        } else {
-          setLoginStatus('failed');
-        }
+        dispatch(signInFailure("Invalid credentials")); // Pass an error message
+        setLoginStatus("invalidCredentials");
       }
     } catch (error) {
       console.log(error);
-      setLoginStatus('failed');
+      dispatch(signInFailure("Login failed. Please try again later."));
+      setLoginStatus("failed");
     } finally {
       setLoading(false);
     }
