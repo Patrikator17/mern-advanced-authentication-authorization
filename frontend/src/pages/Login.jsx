@@ -6,6 +6,7 @@ import {
   signInSuccess,
   signInFailure,
 } from "../redux/user/userSlice";
+import OAuth from '../components/OAuth';
 
 const Login = () => {
   const [formdata, setFormdata] = useState({});
@@ -77,6 +78,7 @@ const Login = () => {
         >
           {loading ? 'Logging In...' : 'LOGIN'}
         </button>
+        <OAuth />
       </form>
       {loginStatus === 'success' && (
         <p className='text-green-500'>Login successful!</p>

@@ -64,3 +64,48 @@ export const login = async(req, res, next) => {
         next(error)
     }
 }
+
+
+export const google = async (req, res, next) => {
+    try {
+        const { name, email, photo } = req.body;
+
+        // Check if the user already exists
+        let user = await User.findOne({ email });
+
+        if (user) {
+            // If user exists, generate token and send user data
+            const token = jwt.sign({ id: user._id }, JWT_SECRET_KEY);
+            const { password, ...rest } = user._doc;
+            const expiryDate = new Date(Date.now() + 3600000);
+
+            res.cookie('access_token', token, { httpOnly: true, expires: expiryDate })
+                .status(200)
+                .json(rest);
+        } else {
+            // If user doesn't exist, create a new user
+            const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+            const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+
+            const newUser = new User({
+                username: name.split(' ').join('').toLowerCase() + Math.floor(Math.random() * 10000).toString(),
+                email,
+                password: hashedPassword,
+                profile_picture: photo
+            });
+
+            user = await newUser.save();
+
+            const token = jwt.sign({ id: user._id }, JWT_SECRET_KEY);
+            const { password: hashedPassword2, ...rest } = user._doc;
+            const expiryDate = new Date(Date.now() + 3600000);
+
+            res.cookie('access_token', token, { httpOnly: true, expires: expiryDate })
+                .status(200)
+                .json(rest);
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+

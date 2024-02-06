@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import OAuth from '../components/OAuth';
 
 const Signup = () => {
   const [formdata, setFormdata] = useState({});
@@ -75,6 +76,7 @@ const Signup = () => {
         >
           {loading ? 'Signing Up...' : 'Sign Up'}
         </button>
+        <OAuth />
       </form>
       {signupStatus === 'success' && (
         <p className='text-green-500'>User added successfully!</p>
