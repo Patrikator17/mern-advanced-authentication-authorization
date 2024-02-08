@@ -3,10 +3,12 @@ import mongoose from 'mongoose';
 import userRouter from './routes/user.routes.js'
 import authRoute from './routes/user.auth.js'
 import cors from 'cors'
+import cookieParser from 'cookie-parser';
 
 const app = express()
 
 app.use(express.json())
+app.use(cookieParser())
 app.use(cors())
 
 mongoose.connect("mongodb+srv://pratikgauth:pratikgauth@mern.dofdkic.mongodb.net/?retryWrites=true&w=majority")
